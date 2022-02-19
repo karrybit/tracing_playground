@@ -1354,7 +1354,10 @@ name = "two"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "prost",
  "tokio",
+ "tonic",
+ "tonic-build",
  "tracing",
  "tracing-subscriber",
 ]

@@ -1,3 +1,7 @@
+pub mod hello {
+    tonic::include_proto!("hello");
+}
+
 #[tokio::main]
 async fn main() {
     // initialize tracing
@@ -19,8 +23,13 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn hello() -> &'static str {
+async fn hello() -> String {
     println!("requested hello in two");
     tracing::info!("requested hello in two");
-    "hello from two service"
+    let mut client = hello::hello_client::HelloClient::connect("http://localhost:5000")
+        .await
+        .unwrap();
+    let request = tonic::Request::new(());
+    let response = client.hello(request).await.unwrap();
+    format!("hello from two service\n{}\n", response.get_ref().msg)
 }

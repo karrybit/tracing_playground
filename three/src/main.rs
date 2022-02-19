@@ -1,10 +1,10 @@
-use tonic::{transport::Server, Request, Response, Status};
-use user_proto::{
+use hello::{
     hello_server::{Hello, HelloServer},
     HelloResponse,
 };
+use tonic::{transport::Server, Request, Response, Status};
 
-pub mod user_proto {
+pub mod hello {
     tonic::include_proto!("hello");
 }
 
