@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  one:
+    image: karrybit/tracing_playground
+    command: '/one'
+    ports:
+      - '3000:3000'
+    container_name: 'one'
+  two:
+    image: karrybit/tracing_playground
+    command: '/two'
+    ports:
+      - '4000:4000'
+    container_name: 'two'
+  three:
+    image: karrybit/tracing_playground
+    command: '/three'
+    ports:
+      - '5000:5000'
+    container_name: 'three'
