@@ -3,6 +3,25 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 use tracing_subscriber::prelude::*;
 
 #[tracing::instrument]
+async fn async_hello(span_context: opentelemetry::trace::SpanContext) {
+    tracing::info!("linked span context in async hello: {:?}", span_context);
+    let span = tracing::span::Span::current();
+    span.add_link(span_context);
+
+    std::thread::sleep(std::time::Duration::from_millis(2000));
+
+    tracing::info!("context in async hello: {:?}", span.context());
+    tracing::info!("baggage in async hello: {:?}", span.context().baggage());
+    tracing::info!(
+        "span context in async hello: {:?}",
+        span.context().span().span_context()
+    );
+    tracing::info!("span in async hello: {:?}", span.context().span());
+
+    std::thread::sleep(std::time::Duration::from_millis(500));
+}
+
+#[tracing::instrument]
 async fn _hello() -> String {
     let span = tracing::span::Span::current();
     tracing::info!("context in _hello: {:?}", span.context());
@@ -81,6 +100,7 @@ async fn hello(_header: axum::http::header::HeaderMap) -> String {
     tracing::info!("start in hello");
 
     span.in_scope(|| hello_inner());
+    tokio::spawn(async_hello(span.context().span().span_context().clone()));
 
     std::thread::sleep(std::time::Duration::from_millis(100));
     let response = span.in_scope(|| _hello()).await;
