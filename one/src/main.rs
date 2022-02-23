@@ -112,7 +112,6 @@ async fn hello(_header: axum::http::header::HeaderMap) -> String {
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
     opentelemetry::global::set_text_map_propagator(
         opentelemetry::sdk::propagation::TextMapCompositePropagator::new(vec![
             Box::new(opentelemetry::sdk::propagation::BaggagePropagator::new()),
