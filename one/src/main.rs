@@ -2,6 +2,16 @@ use opentelemetry::{baggage::BaggageExt, trace::TraceContextExt};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 use tracing_subscriber::prelude::*;
 
+static HOST: once_cell::sync::Lazy<&'static str> = once_cell::sync::Lazy::new(|| {
+    let host = option_env!("HOST");
+    match host {
+        Some("docker-compose") => "two",
+        _ => "localhost",
+    }
+});
+static TWO_URL: once_cell::sync::Lazy<String> =
+    once_cell::sync::Lazy::new(|| format!("http://{}:4000/", *HOST));
+
 #[tracing::instrument]
 async fn async_hello(span_context: opentelemetry::trace::SpanContext) {
     tracing::info!("linked span context in async_hello: {:?}", span_context);
@@ -40,7 +50,7 @@ async fn _hello() -> String {
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     let client = reqwest::Client::new();
-    let mut request = client.get("http://localhost:4000/").build().unwrap();
+    let mut request = client.get(TWO_URL.as_str()).build().unwrap();
 
     opentelemetry::global::get_text_map_propagator(|propagator| {
         propagator.inject_context(
