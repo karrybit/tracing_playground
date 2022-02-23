@@ -2,15 +2,11 @@ use opentelemetry::{baggage::BaggageExt, trace::TraceContextExt};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 use tracing_subscriber::prelude::*;
 
-static HOST: once_cell::sync::Lazy<&'static str> = once_cell::sync::Lazy::new(|| {
-    let host = option_env!("HOST");
-    match host {
-        Some("docker-compose") => "two",
-        _ => "localhost",
-    }
-});
-static THREE_URL: once_cell::sync::Lazy<String> =
-    once_cell::sync::Lazy::new(|| format!("http://{}:5000/", *HOST));
+static THREE_URL: once_cell::sync::Lazy<&'static str> =
+    once_cell::sync::Lazy::new(|| match std::env::var("RUN_ON") {
+        Ok(run_on) if run_on == "docker-compose" => "http://three:5000/",
+        _ => "http://localhost:5000/",
+    });
 
 mod hello {
     tonic::include_proto!("hello");
@@ -30,7 +26,7 @@ async fn _hello() -> String {
     tracing::info!("start _hello");
     std::thread::sleep(std::time::Duration::from_millis(100));
 
-    let mut client = hello::hello_client::HelloClient::connect(THREE_URL.as_str())
+    let mut client = hello::hello_client::HelloClient::connect(*THREE_URL)
         .await
         .unwrap();
     let mut request = tonic::Request::new(());
