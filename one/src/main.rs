@@ -4,19 +4,19 @@ use tracing_subscriber::prelude::*;
 
 #[tracing::instrument]
 async fn async_hello(span_context: opentelemetry::trace::SpanContext) {
-    tracing::info!("linked span context in async hello: {:?}", span_context);
+    tracing::info!("linked span context in async_hello: {:?}", span_context);
     let span = tracing::span::Span::current();
     span.add_link(span_context);
 
     std::thread::sleep(std::time::Duration::from_millis(2000));
 
-    tracing::info!("context in async hello: {:?}", span.context());
-    tracing::info!("baggage in async hello: {:?}", span.context().baggage());
+    tracing::info!("context in async_hello: {:?}", span.context());
+    tracing::info!("baggage in async_hello: {:?}", span.context().baggage());
     tracing::info!(
-        "span context in async hello: {:?}",
+        "span context in async_hello: {:?}",
         span.context().span().span_context()
     );
-    tracing::info!("span in async hello: {:?}", span.context().span());
+    tracing::info!("span in async_hello: {:?}", span.context().span());
 
     std::thread::sleep(std::time::Duration::from_millis(500));
 }
