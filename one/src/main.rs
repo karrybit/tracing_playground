@@ -105,11 +105,11 @@ async fn hello(_header: axum::http::header::HeaderMap) -> String {
 
     tracing::info!("start in hello");
 
-    span.in_scope(|| hello_inner());
+    hello_inner();
     tokio::spawn(async_hello(span.context().span().span_context().clone()));
 
     std::thread::sleep(std::time::Duration::from_millis(100));
-    let response = span.in_scope(|| _hello()).await;
+    let response = _hello().await;
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     tracing::info!("finish in hello");

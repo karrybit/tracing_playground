@@ -59,7 +59,7 @@ impl hello_proto::hello_server::Hello for MyUserService {
         );
         tracing::info!("span in hello: {:?}", span);
 
-        span.in_scope(|| hello_inner());
+        hello_inner();
 
         tracing::info!("start hello");
         std::thread::sleep(std::time::Duration::from_millis(100));

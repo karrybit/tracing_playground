@@ -102,10 +102,10 @@ async fn hello(header: axum::http::header::HeaderMap) -> String {
 
     tracing::info!("start hello");
 
-    span.in_scope(|| hello_inner());
+    hello_inner();
 
     std::thread::sleep(std::time::Duration::from_millis(100));
-    let response = span.in_scope(|| _hello()).await;
+    let response = _hello().await;
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     tracing::info!("finish hello");
