@@ -128,7 +128,12 @@ async fn main() {
             .install_simple()
             .unwrap(),
     );
-    let format_layer = tracing_subscriber::fmt::layer().with_writer(std::io::stdout);
+    let format_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stdout)
+        .with_file(true)
+        .with_line_number(true)
+        .with_thread_ids(true)
+        .with_thread_names(true);
     tracing_subscriber::Registry::default()
         .with(tracing_layer)
         .with(format_layer.json().flatten_event(true))
