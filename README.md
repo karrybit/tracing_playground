@@ -19,7 +19,7 @@ $ RUST_LOG=info cargo run -p three
 
 ## request
 
-Open `localhost:16686` in your browser and `curl localhost:3000`.
+Exec `curl localhost:3000` and open `localhost:16686` in your browser.
 
 # images
 
