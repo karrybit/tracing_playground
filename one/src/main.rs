@@ -103,19 +103,19 @@ async fn async_hello(span_context: opentelemetry::trace::SpanContext) {
 #[tracing::instrument]
 async fn request_two() -> String {
     let span = tracing::span::Span::current();
-    tracing::info!("context in _hello: {:?}", span.context());
-    tracing::info!("baggage in _hello: {:?}", span.context().baggage());
+    tracing::info!("context in request_two: {:?}", span.context());
+    tracing::info!("baggage in request_two: {:?}", span.context().baggage());
     tracing::info!(
-        "span context in _hello: {:?}",
+        "span context in request_two: {:?}",
         span.context().span().span_context()
     );
-    tracing::info!("span in _hello: {:?}", span.context().span());
+    tracing::info!("span in request_two: {:?}", span.context().span());
 
     let ctx = span
         .context()
         .with_baggage(vec![opentelemetry::KeyValue::new("my-name", "my-value")]);
 
-    tracing::info!("start _hello");
+    tracing::info!("start request_two");
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     let client = reqwest::Client::new();
@@ -127,7 +127,7 @@ async fn request_two() -> String {
             &mut opentelemetry_http::HeaderInjector(request.headers_mut()),
         )
     });
-    tracing::info!("header in _hello: {:?}", request.headers());
+    tracing::info!("header in request_two: {:?}", request.headers());
 
     let response = match client.execute(request).await {
         Ok(r) => r,
@@ -144,7 +144,7 @@ async fn request_two() -> String {
         }
     };
     std::thread::sleep(std::time::Duration::from_millis(100));
-    tracing::info!("finish _hello");
+    tracing::info!("finish request_two");
 
     format!("hello from one service\n{}\n", response)
 }

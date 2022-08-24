@@ -101,15 +101,15 @@ fn hello_inner() {
 #[tracing::instrument]
 async fn request_three() -> String {
     let span = tracing::span::Span::current();
-    tracing::info!("context in _hello: {:?}", span.context());
-    tracing::info!("context in _hello: {:?}", span.context().baggage());
+    tracing::info!("context in request_three: {:?}", span.context());
+    tracing::info!("context in request_three: {:?}", span.context().baggage());
     tracing::info!(
-        "span context in _hello: {:?}",
+        "span context in request_three: {:?}",
         span.context().span().span_context()
     );
-    tracing::info!("span in _hello: {:?}", span.context().span());
+    tracing::info!("span in request_three: {:?}", span.context().span());
 
-    tracing::info!("start _hello");
+    tracing::info!("start request_three");
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     let mut client = hello::hello_client::HelloClient::connect(THREE_URL.as_str())
@@ -118,29 +118,29 @@ async fn request_three() -> String {
     let mut request = tonic::Request::new(());
     let mut header = request.metadata().clone().into_headers();
 
-    tracing::info!("before injected request header _hello: {:?}", header);
+    tracing::info!("before injected request header request_three: {:?}", header);
     opentelemetry::global::get_text_map_propagator(|propagator| {
         propagator.inject_context(
             &span.context(),
             &mut opentelemetry_http::HeaderInjector(&mut header),
         )
     });
-    tracing::info!("after injected request header _hello: {:?}", header);
+    tracing::info!("after injected request header request_three: {:?}", header);
 
     let metadata = tonic::metadata::MetadataMap::from_headers(header);
     *request.metadata_mut() = metadata;
 
-    tracing::info!("request _hello: {:?}", request);
-    tracing::info!("metadata _hello: {:?}", request.metadata());
+    tracing::info!("request request_three: {:?}", request);
+    tracing::info!("metadata request_three: {:?}", request.metadata());
     tracing::info!(
-        "request header _hello: {:?}",
+        "request header request_three: {:?}",
         request.metadata().clone().into_headers()
     );
 
     let response = client.hello(request).await.unwrap();
 
     std::thread::sleep(std::time::Duration::from_millis(100));
-    tracing::info!("finish _hello");
+    tracing::info!("finish request_three");
 
     format!("hello from two service\n{}\n", response.get_ref().msg)
 }
