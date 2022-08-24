@@ -13,7 +13,7 @@ services:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6831
       - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-      - RUN_ON=docker-compose
+      - TWO_URL=http://two:4000/
     depends_on:
       - jaeger
   two:
@@ -28,7 +28,7 @@ services:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6831
       - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-      - RUN_ON=docker-compose
+      - THREE_URL=http://three:4000/
     depends_on:
       - jaeger
   three:
@@ -43,7 +43,6 @@ services:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6831
       - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-      - RUN_ON=docker-compose
     depends_on:
       - jaeger
   jaeger:
