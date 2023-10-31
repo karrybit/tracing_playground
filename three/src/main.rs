@@ -15,7 +15,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]),
     );
     let tracing_layer = tracing_opentelemetry::layer().with_tracer(
-        opentelemetry_jaeger::new_pipeline()
+        opentelemetry_jaeger::new_agent_pipeline()
             .with_service_name("three")
             .install_simple()
             .unwrap(),
