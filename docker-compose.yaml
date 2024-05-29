@@ -1,61 +1,29 @@
-version: '3'
+version: "3"
 
 services:
-  one:
-    container_name: 'one'
-    image: karrybit/tracing_playground
-    command: '/one'
-    ports:
-      - '3000:3000'
-    environment:
-      - RUST_LOG=INFO
-      - JAEGER_SERVICE_NAME=one
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_AGENT_PORT=6831
-      - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-      - TWO_URL=http://two:4000/
-    depends_on:
-      - jaeger
-  two:
-    container_name: 'two'
-    image: karrybit/tracing_playground
-    command: '/two'
-    ports:
-      - '4000:4000'
-    environment:
-      - RUST_LOG=INFO
-      - JAEGER_SERVICE_NAME=two
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_AGENT_PORT=6831
-      - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-      - THREE_URL=http://three:4000/
-    depends_on:
-      - jaeger
-  three:
-    container_name: 'three'
-    image: karrybit/tracing_playground
-    command: '/three'
-    ports:
-      - '5000:5000'
-    environment:
-      - RUST_LOG=INFO
-      - JAEGER_SERVICE_NAME=three
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_AGENT_PORT=6831
-      - JAEGER_SAMPLER_MANAGER_HOST_PORT=jaeger:5778
-    depends_on:
-      - jaeger
   jaeger:
     image: jaegertracing/all-in-one:latest
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
     ports:
-      - '5775:5775/udp'
-      - '6831:6831/udp'
-      - '6832:6832/udp'
-      - '5778:5778'
-      - '9411:9411'
-      - '14250:14250'
-      - '14268:14268'
-      - '14269:14269'
-      - '16686:16686'
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "9411:9411"
+      - "14250:14250"
+      - "14268:14268"
+      - "14269:14269"
+      - "16686:16686"
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
+      - "13133:13133"
+      - "55679:55679"
+    depends_on:
+      - jaeger

@@ -12,9 +12,9 @@ The communication between applications is http with Axum and http2 with tonic.
 ## run applications
 
 ```sh
-$ RUST_LOG=info TWO_URL=http://localhost:4000/ cargo run -p one
-$ RUST_LOG=info THREE_URL=http://localhost:5000/ cargo run -p two
-$ RUST_LOG=info cargo run -p three
+RUST_LOG=info TWO_URL=http://localhost:4000/ cargo run -p one
+RUST_LOG=info THREE_URL=http://localhost:5000/ cargo run -p two
+RUST_LOG=info cargo run -p three
 ```
 
 ## request

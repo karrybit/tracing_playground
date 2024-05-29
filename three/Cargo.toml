@@ -1,24 +1,21 @@
 [package]
 name = "three"
-version = "0.1.0"
-edition = "2021"
-
+version = { workspace = true }
+edition = { workspace = true }
+publish = { workspace = true }
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 hyper = "0.14.27"
-tower = "0.4.13"
-tonic = "0.10.2"
+opentelemetry = { workspace = true }
+playground_util = { workspace = true }
 prost = "0.12.1"
-futures = "0.3.29"
-tokio = { version = "1.33.0", features = ["macros", "rt-multi-thread"] }
+tonic = "0.10.2"
+tower = "0.4.13"
 
-opentelemetry = { version = "0.20.0", features = ["trace", "rt-tokio"] }
-opentelemetry-jaeger = "0.19.0"
-opentelemetry-http = "0.9.0"
-tracing = "0.1.40"
-tracing-opentelemetry = "0.21.0"
-tracing-subscriber = { version="0.3.17", features = ["env-filter", "json"] }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-opentelemetry = { workspace = true }
 
 [build-dependencies]
-tonic-build = "0.10.2"
+tonic-build = { workspace = true }

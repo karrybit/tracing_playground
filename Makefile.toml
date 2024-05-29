@@ -1,0 +1,91 @@
+[config]
+skip_core_tasks = true
+default_to_workspace = false
+
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+__CARGO_FIX_YOLO = 1
+REPOSITORY_ROOT = { script = [
+    "git rev-parse --show-superproject-working-tree --show-toplevel",
+] }
+
+[tasks.default]
+description = "List steps"
+command = "cargo"
+args = ["make", "--list-all-steps"]
+
+[tasks.up]
+category = "Docker"
+description = "docker compose up"
+script = ["docker compose up"]
+
+[tasks.down]
+category = "Docker"
+description = "docker compose down"
+command = "docker"
+args = ["compose", "down", "-v", "-t", "1"]
+
+[tasks.one]
+category = "Application"
+description = "run application one"
+command = "cargo"
+args = ["run", "-p", "one"]
+
+[tasks.two]
+category = "Application"
+description = "run application two"
+command = "cargo"
+args = ["run", "-p", "two"]
+
+[tasks.three]
+category = "Application"
+description = "run application three"
+command = "cargo"
+args = ["run", "-p", "three"]
+
+[tasks.udeps]
+category = "Cargo"
+description = "cargo udeps"
+install_crate = { crate_name = "cargo-udeps" }
+toolchain = "nightly"
+command = "cargo"
+args = ["udeps", "--workspace", "--all-targets", "--all-features"]
+
+[tasks.sort]
+category = "Cargo"
+description = "cargo sort"
+install_crate = { crate_name = "cargo-sort" }
+command = "cargo"
+args = ["sort", "--workspace", "--grouped"]
+
+[tasks.lint]
+category = "Cargo"
+description = "cargo lint"
+command = "cargo"
+args = ["clippy", "--no-deps", "--", "-D", "warnings"]
+
+[tasks.format]
+category = "Cargo"
+description = "cargo format --nightly"
+toolchain = "nightly"
+command = "cargo"
+args = [
+    "fmt",
+    "--all",
+    "--message-format",
+    "human",
+    "--",
+    "--config-path=${REPOSITORY_ROOT}/rustfmt.toml",
+    "--emit=files",
+]
+
+[tasks.fix]
+category = "Cargo"
+description = "cargo fix"
+command = "cargo"
+args = ["clippy", "--no-deps", "--fix", "--allow-dirty", "--allow-staged"]
+
+[tasks.pretty]
+category = "Cargo"
+description = "udeps && sort && fix && test && lint && format"
+dependencies = ["udeps", "sort", "fix", "lint", "format"]

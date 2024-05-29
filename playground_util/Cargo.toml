@@ -1,0 +1,17 @@
+[package]
+name = "playground_util"
+version = { workspace = true }
+edition = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+http = { workspace = true }
+opentelemetry = { workspace = true }
+# opentelemetry-contrib = "0.13.0"
+opentelemetry-http = { version = "0.10.0", features = ["tokio"] }
+opentelemetry-otlp = { version = "0.14.0", features = ["tonic"] }
+opentelemetry-semantic-conventions = "0.13.0"
+opentelemetry_sdk = { version = "0.21.2", features = ["rt-tokio"] }
+tracing = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
