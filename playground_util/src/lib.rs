@@ -62,9 +62,10 @@ pub fn init_traicing(service_name: &str) {
     }
 }
 
-pub fn inject_context(context: &opentelemetry::Context, header: &mut http::HeaderMap) {
+pub fn inject_context(header: &mut http::HeaderMap) {
+    let context = opentelemetry::Context::current();
     opentelemetry::global::get_text_map_propagator(|propagator| {
-        propagator.inject_context(context, &mut opentelemetry_http::HeaderInjector(header))
+        propagator.inject_context(&context, &mut opentelemetry_http::HeaderInjector(header))
     });
 }
 

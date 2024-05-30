@@ -31,16 +31,16 @@ impl hello_proto::hello_server::Hello for MyUserService {
         &self,
         request: tonic::Request<()>,
     ) -> Result<tonic::Response<hello_proto::HelloResponse>, tonic::Status> {
+        playground_util::log("start hello");
         let parent_context =
             playground_util::extract_context(&request.metadata().clone().into_headers());
-        playground_util::log("start hello");
 
         let span = tracing::span::Span::current();
         span.set_parent(parent_context);
 
         let context = span
             .context()
-            .with_baggage(vec![KeyValue::new("three::request_three", 1)]);
+            .with_baggage(vec![KeyValue::new("three", "hello")]);
 
         async move {
             playground_util::log("finish hello");
