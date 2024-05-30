@@ -1,4 +1,4 @@
-use opentelemetry::{baggage::BaggageExt, trace::TraceContextExt};
+use opentelemetry::{baggage::BaggageExt, trace::TraceContextExt, KeyValue};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _};
 
@@ -32,15 +32,14 @@ pub fn init_traicing(service_name: &str) {
             .expect("failed to install batch");
 
         let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
-        let fmt_layer = tracing_subscriber::fmt::layer()
-            .with_writer(std::io::stdout)
-            .with_file(true)
-            .with_line_number(true)
-            .with_thread_names(true)
-            .with_thread_ids(true)
-            .with_target(true)
-            .with_timer(tracing_subscriber::fmt::time::UtcTime::rfc_3339())
-            .with_level(true);
+        let fmt_layer = tracing_subscriber::fmt::layer().with_writer(std::io::stdout);
+        // .with_file(true)
+        // .with_line_number(true)
+        // .with_thread_names(true)
+        // .with_thread_ids(true)
+        // .with_target(true)
+        // .with_timer(tracing_subscriber::fmt::time::UtcTime::rfc_3339())
+        // .with_level(true);
         tracing_subscriber::registry()
             .with(opentelemetry)
             .with(env_filter_layer)
@@ -75,11 +74,9 @@ pub fn set_parent(request: &http::Request<()>) -> tracing::Span {
 }
 
 pub fn inject_context(header: &mut http::HeaderMap) {
+    let context = tracing::span::Span::current().context();
     opentelemetry::global::get_text_map_propagator(|propagator| {
-        propagator.inject_context(
-            &opentelemetry::Context::current(),
-            &mut opentelemetry_http::HeaderInjector(header),
-        )
+        propagator.inject_context(&context, &mut opentelemetry_http::HeaderInjector(header))
     });
 }
 
@@ -89,12 +86,27 @@ pub fn extract_context(header: &http::HeaderMap) -> opentelemetry::Context {
     })
 }
 
+pub fn set_baggage(key: &str) {
+    let span = tracing::span::Span::current();
+    let context = span
+        .context()
+        .with_baggage(vec![KeyValue::new(key.to_string(), true)]);
+    span.set_parent(context);
+}
+
+pub fn set_baggage_with_context(context: opentelemetry::Context, key: &str) {
+    let context = context.with_baggage(vec![KeyValue::new(key.to_string(), true)]);
+    let span = tracing::span::Span::current();
+    span.set_parent(context);
+}
+
 pub fn log(message: &str) {
     let span = tracing::span::Span::current();
     let context = span.context();
     let span_ref = context.span();
     let span_context = span_ref.span_context();
     let trace_id = span_context.trace_id();
+    let span_id = span_context.span_id();
     let baggage = context.baggage();
-    tracing::info!("👺 [{trace_id}: {message}], baggage: {baggage}");
+    tracing::info!("[{trace_id}:{span_id}] 👺 {message} 😈 {context:?} 👜 {baggage}");
 }

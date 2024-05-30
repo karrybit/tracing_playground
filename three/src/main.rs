@@ -1,6 +1,4 @@
-use opentelemetry::{baggage::BaggageExt, trace::FutureExt, KeyValue};
-use playground_util::{inject_context, log, set_parent};
-use tracing_opentelemetry::OpenTelemetrySpanExt;
+use playground_util::set_parent;
 
 pub mod hello_proto {
     tonic::include_proto!("hello");
@@ -35,31 +33,21 @@ impl hello_proto::hello_server::Hello for MyUserService {
     ) -> Result<tonic::Response<hello_proto::HelloResponse>, tonic::Status> {
         playground_util::log("start hello");
 
-        let context = tracing::Span::current()
-            .context()
-            .with_baggage(vec![KeyValue::new("three:hello", true)]);
+        playground_util::set_baggage("three:hello");
 
-        playground_util::log(&format!("before async block: {}", context.baggage()));
-        async move {
-            let context = tracing::Span::current().context();
-            playground_util::log(&format!("in async block: {}", context.baggage()));
+        let msg = f().await;
+        playground_util::log("finish hello");
 
-            let msg = f().await;
-            playground_util::log("finish hello");
-            Ok(tonic::Response::new(hello_proto::HelloResponse { msg }))
-        }
-        .with_context(context)
-        .await
+        Ok(tonic::Response::new(hello_proto::HelloResponse { msg }))
     }
 }
 
 #[tracing::instrument]
 async fn f() -> String {
     playground_util::log("start f");
-    let context = tracing::Span::current()
-        .context()
-        .with_baggage(vec![KeyValue::new("three:f", true)]);
-    let response = g().with_context(context).await;
+    playground_util::set_baggage("three:f");
+
+    let response = g().await;
 
     playground_util::log("finish f");
     response
@@ -69,9 +57,7 @@ async fn f() -> String {
 async fn g() -> String {
     playground_util::log("start g");
 
-    let mut map = http::HeaderMap::new();
-    inject_context(&mut map);
-    log(&format!("map={map:?}"));
+    playground_util::set_baggage("three:g");
 
     playground_util::log("finish g");
     "hello from three service".to_string()

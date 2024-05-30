@@ -7,7 +7,6 @@ publish = { workspace = true }
 
 [dependencies]
 axum = { workspace = true }
-axum-tracing-opentelemetry = "0.18.1"
 prost = "0.12.1"
 tonic = "0.10.2"
 
