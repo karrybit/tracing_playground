@@ -6,6 +6,7 @@ publish = { workspace = true }
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+http = { workspace = true }
 hyper = "0.14.27"
 opentelemetry = { workspace = true }
 playground_util = { workspace = true }

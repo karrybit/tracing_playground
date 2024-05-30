@@ -41,6 +41,9 @@ async fn g() -> String {
     let context =
         opentelemetry::Context::current().with_baggage(vec![KeyValue::new("two:g", true)]);
     async move {
+        let context = tracing::Span::current().context();
+        playground_util::log(&format!("in async block: {}", context.baggage()));
+
         let response = request().await;
         playground_util::log("finish g");
         response

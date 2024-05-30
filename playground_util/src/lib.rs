@@ -1,4 +1,5 @@
-use opentelemetry::baggage::BaggageExt;
+use opentelemetry::{baggage::BaggageExt, trace::TraceContextExt};
+use tracing_opentelemetry::OpenTelemetrySpanExt;
 use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _};
 
 pub fn init_traicing(service_name: &str) {
@@ -62,10 +63,23 @@ pub fn init_traicing(service_name: &str) {
     }
 }
 
+pub fn set_parent(request: &http::Request<()>) -> tracing::Span {
+    let context = opentelemetry::global::get_text_map_propagator(|propagator| {
+        propagator.extract(&opentelemetry_http::HeaderExtractor(request.headers()))
+    });
+
+    let root_span = tracing::info_span!("root span",);
+
+    root_span.set_parent(context);
+    root_span
+}
+
 pub fn inject_context(header: &mut http::HeaderMap) {
-    let context = opentelemetry::Context::current();
     opentelemetry::global::get_text_map_propagator(|propagator| {
-        propagator.inject_context(&context, &mut opentelemetry_http::HeaderInjector(header))
+        propagator.inject_context(
+            &opentelemetry::Context::current(),
+            &mut opentelemetry_http::HeaderInjector(header),
+        )
     });
 }
 
@@ -76,7 +90,11 @@ pub fn extract_context(header: &http::HeaderMap) -> opentelemetry::Context {
 }
 
 pub fn log(message: &str) {
-    let context = opentelemetry::Context::current();
+    let span = tracing::span::Span::current();
+    let context = span.context();
+    let span_ref = context.span();
+    let span_context = span_ref.span_context();
+    let trace_id = span_context.trace_id();
     let baggage = context.baggage();
-    tracing::info!("👺 [{message}], baggage: {baggage}");
+    tracing::info!("👺 [{trace_id}: {message}], baggage: {baggage}");
 }
